@@ -107,6 +107,9 @@ public class mainClass {
                 System.out.println(iterator.next());
             }
 
+        }else{
+
+            System.out.println("0 reviews");
         }
         }catch(Exception e){
             e.printStackTrace();
@@ -116,7 +119,7 @@ public class mainClass {
         return false;
     }
     public static void main (String[] arg)  {
-        
+        searchByActorName("John Ott");
 
 
 
