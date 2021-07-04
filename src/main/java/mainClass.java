@@ -6,9 +6,11 @@ import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoIterable;
 import org.bson.*;
 import com.mongodb.MongoClient.*;
+import org.bson.types.ObjectId;
 
 import java.net.UnknownHostException;
 import java.sql.SQLOutput;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 
@@ -16,13 +18,109 @@ public class mainClass {
     public static MongoClient mongoClient;
     public static DB db;
     public static DBCollection dbCollection;
+    static Scanner in = new Scanner(System.in);
+    public static boolean searchByTitle(String title){
+        System.out.println("zdxfgh");
+        String name =in.next();
+        BasicDBObject b = new BasicDBObject("title",title);
+        mongoClient = new MongoClient(new MongoClientURI("mongodb://localhost:27017"));
+        MongoCollection<Document> collection = mongoClient.getDatabase("movie").getCollection("movies");
+        FindIterable<Document> cursor = collection.find(b);
+        MongoCursor<Document> iterator = cursor.iterator();
+        if(iterator.hasNext()) {
+            while (iterator.hasNext()) {
+                System.out.println(iterator.next());
+            }
+            return true;
+        }
 
-
-    public static void main (String[] arg)  {
-       boolean  flag = false;
-        Scanner in = new Scanner(System.in);
-        String args = "";
+        return false;
+    }
+    public static boolean searchByActorName(String name){
         try {
+
+
+            BasicDBObject b = new BasicDBObject("cast", name);
+            mongoClient = new MongoClient(new MongoClientURI("mongodb://localhost:27017"));
+            MongoCollection<Document> collection = mongoClient.getDatabase("movie").getCollection("movies");
+            FindIterable<Document> cursor = collection.find(b);
+            MongoCursor<Document> iterator = cursor.iterator();
+            if (iterator.hasNext()) {
+                while (iterator.hasNext()) {
+                    //System.out.println(iterator.next());
+                    Object id = iterator.next().get("_id");
+                    //System.out.println(iterator.next().get("_id"));
+                    showCommentsForSelectedMovie(id.toString());
+                }
+                return true;
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+
+
+        return false;
+    }
+
+    public static boolean searchByDirectorName(String name){
+        BasicDBObject b = new BasicDBObject("directors",name);
+        mongoClient = new MongoClient(new MongoClientURI("mongodb://localhost:27017"));
+        MongoCollection<Document> collection = mongoClient.getDatabase("movie").getCollection("movies");
+        FindIterable<Document> cursor = collection.find(b);
+        MongoCursor<Document> iterator = cursor.iterator();
+        if(iterator.hasNext()){
+            while(iterator.hasNext()){
+                System.out.println(iterator.next());
+            }
+            return true;
+        }
+
+        return false;
+    }
+
+    public static boolean searchByGenre(String genre){
+        BasicDBObject b = new BasicDBObject("genres", genre);
+        mongoClient = new MongoClient(new MongoClientURI("mongodb://localhost:27017"));
+        MongoCollection<Document> collection = mongoClient.getDatabase("movie").getCollection("movies");
+        FindIterable<Document> cursor = collection.find(b);
+        MongoCursor<Document> iterator = cursor.iterator();
+        if(iterator.hasNext()){
+            while(iterator.hasNext()){
+                System.out.println(iterator.next());
+            }
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean showCommentsForSelectedMovie(String id){
+        try{
+        BasicDBObject b = new BasicDBObject("movie_id",new ObjectId(id));
+        mongoClient = new MongoClient(new MongoClientURI("mongodb://localhost:27017"));
+        MongoCollection<Document> collection = mongoClient.getDatabase("movie").getCollection("comments");
+        FindIterable<Document> cursor = collection.find(b);
+        MongoCursor<Document> iterator = cursor.iterator();
+        if(iterator.hasNext()){
+            while(iterator.hasNext()){
+
+                System.out.println(iterator.next());
+            }
+
+        }
+        }catch(Exception e){
+            e.printStackTrace();
+
+        }
+
+        return false;
+    }
+    public static void main (String[] arg)  {
+        
+
+
+
+       /* try {
             int count = 0;
             mongoClient = new MongoClient(new MongoClientURI("mongodb://localhost:27017"));
             BasicDBObject basicDBObject = null;
@@ -43,7 +141,7 @@ public class mainClass {
            String id = String.valueOf(cursor.iterator().next().get("_id"));
            CommentsCursor = CommentCollection.find(new Document("movie_id", id));*/
 
-            cursor = collection.find(doc);
+           /* cursor = collection.find(doc);
             System.out.println(cursor.iterator().next());
            //System.out.println(CommentsCursor.iterator().next());
            /* cursor = collection.find(new Document("cast", "John Ott"));
@@ -97,9 +195,9 @@ public class mainClass {
 
 
 
-
+/*
         }catch (Exception e){
             e.printStackTrace();
-        }
+        }*/
     }
 }
