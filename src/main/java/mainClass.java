@@ -118,6 +118,15 @@ public class mainClass {
 
         return false;
     }
+    public static boolean sort(FindIterable<Document> cursor){
+        BasicDBObject basicDBObject = new BasicDBObject("years", 1);
+        MongoCursor<Document> iterator  = cursor.sort(basicDBObject).cursor();
+        if(iterator.hasNext()){
+
+            System.out.println(iterator);
+        }
+        return false;
+    }
     public static void main (String[] arg)  {
         searchByActorName("John Ott");
 
