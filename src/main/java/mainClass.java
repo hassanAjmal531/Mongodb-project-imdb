@@ -86,6 +86,8 @@ public class mainClass {
         FindIterable<Document> cursor = collection.find(b);
         MongoCursor<Document> iterator = cursor.iterator();
         if(iterator.hasNext()){
+            //sort(cursor);
+            sortByRuntime(cursor);
             while(iterator.hasNext()){
                 System.out.println(iterator.next());
             }
@@ -118,17 +120,52 @@ public class mainClass {
 
         return false;
     }
-    public static boolean sort(FindIterable<Document> cursor){
-        BasicDBObject basicDBObject = new BasicDBObject("years", 1);
-        MongoCursor<Document> iterator  = cursor.sort(basicDBObject).cursor();
-        if(iterator.hasNext()){
+    public static boolean sortONYear(FindIterable<Document> cursor){
+        try {
+            BasicDBObject basicDBObject = new BasicDBObject("year", -1);
+            FindIterable<Document> cursr = cursor.sort(basicDBObject);
+            MongoCursor<Document> iterator = cursr.iterator();
 
-            System.out.println(iterator);
+            if (iterator.hasNext()) {
+                while (iterator.hasNext()) {
+                    System.out.println(iterator.next().getInteger("year"));
+
+                }
+                return true;
+
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static boolean sortByRuntime(FindIterable<Document> cursor){
+        try {
+            BasicDBObject basicDBObject = new BasicDBObject("runtime", 1);
+            FindIterable<Document> cursr = cursor.sort(basicDBObject);
+            MongoCursor<Document> iterator = cursr.iterator();
+
+            if (iterator.hasNext()) {
+                while (iterator.hasNext()) {
+                    iterator.next().getInteger("runtime");
+
+
+                    System.out.println(iterator.next().getInteger("runtime"));
+
+
+                }
+                return true;
+
+            }
+        }catch (Exception e){
+            e.printStackTrace();
         }
         return false;
     }
     public static void main (String[] arg)  {
-        searchByActorName("John Ott");
+        searchByGenre("Short");
+       // searchByActorName("John Ott");
 
 
 
