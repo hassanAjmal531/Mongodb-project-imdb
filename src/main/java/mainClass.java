@@ -1,102 +1,76 @@
-
+// Muhammad Hassan Ajmal Reg# FA19-BCS=049   Section BCS-4A
 import com.mongodb.*;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
-import com.mongodb.client.MongoIterable;
 import org.bson.*;
-import com.mongodb.MongoClient.*;
 import org.bson.types.ObjectId;
-
-import java.net.UnknownHostException;
-import java.sql.SQLOutput;
-import java.util.ArrayList;
-import java.util.Scanner;
-
+import javax.swing.*;
 
 public class mainClass {
     public static MongoClient mongoClient;
-    public static DB db;
-    public static DBCollection dbCollection;
-    static Scanner in = new Scanner(System.in);
-    public static boolean searchByTitle(String title){
-        System.out.println("zdxfgh");
-        String name =in.next();
-        BasicDBObject b = new BasicDBObject("title",title);
-        mongoClient = new MongoClient(new MongoClientURI("mongodb://localhost:27017"));
-        MongoCollection<Document> collection = mongoClient.getDatabase("movie").getCollection("movies");
-        FindIterable<Document> cursor = collection.find(b);
-        MongoCursor<Document> iterator = cursor.iterator();
-        if(iterator.hasNext()) {
-            while (iterator.hasNext()) {
-                System.out.println(iterator.next());
+
+    public static FindIterable<Document> searchByTitle(String title){
+
+        try {
+            BasicDBObject b = new BasicDBObject("title", title);
+            mongoClient = new MongoClient(new MongoClientURI("mongodb://localhost:27017"));
+            MongoCollection<Document> collection = mongoClient.getDatabase("movie").getCollection("movies");
+            FindIterable<Document> cursor = collection.find(b);
+            MongoCursor<Document> iterator = cursor.iterator();
+
+            if (iterator.hasNext()) {
+                return cursor;
             }
-            return true;
+        }catch (Exception e){
+            e.printStackTrace();
         }
 
-        return false;
+        return null;
     }
-    public static boolean searchByActorName(String name){
+    public static FindIterable<Document> searchByActorName(String name){
         try {
-
-
             BasicDBObject b = new BasicDBObject("cast", name);
             mongoClient = new MongoClient(new MongoClientURI("mongodb://localhost:27017"));
             MongoCollection<Document> collection = mongoClient.getDatabase("movie").getCollection("movies");
             FindIterable<Document> cursor = collection.find(b);
             MongoCursor<Document> iterator = cursor.iterator();
             if (iterator.hasNext()) {
-                while (iterator.hasNext()) {
-                    //System.out.println(iterator.next());
                     Object id = iterator.next().get("_id");
-                    //System.out.println(iterator.next().get("_id"));
-                    showCommentsForSelectedMovie(id.toString());
-                }
-                return true;
+                return cursor;
             }
         }catch (Exception e){
             e.printStackTrace();
         }
-
-
-
-        return false;
+        return null;
     }
 
-    public static boolean searchByDirectorName(String name){
+    public static FindIterable<Document> searchByDirectorName(String name){
         BasicDBObject b = new BasicDBObject("directors",name);
         mongoClient = new MongoClient(new MongoClientURI("mongodb://localhost:27017"));
         MongoCollection<Document> collection = mongoClient.getDatabase("movie").getCollection("movies");
         FindIterable<Document> cursor = collection.find(b);
         MongoCursor<Document> iterator = cursor.iterator();
         if(iterator.hasNext()){
-            while(iterator.hasNext()){
-                System.out.println(iterator.next());
+            return cursor;
             }
-            return true;
-        }
-
-        return false;
+        return null;
     }
 
-    public static boolean searchByGenre(String genre){
+    public static FindIterable<Document> searchByGenre(String genre){
         BasicDBObject b = new BasicDBObject("genres", genre);
         mongoClient = new MongoClient(new MongoClientURI("mongodb://localhost:27017"));
         MongoCollection<Document> collection = mongoClient.getDatabase("movie").getCollection("movies");
         FindIterable<Document> cursor = collection.find(b);
         MongoCursor<Document> iterator = cursor.iterator();
+        FindIterable<Document> cursor2 = cursor;
         if(iterator.hasNext()){
-            //sort(cursor);
-            sortByRuntime(cursor);
-            while(iterator.hasNext()){
-                System.out.println(iterator.next());
+            return cursor;
             }
-            return true;
-        }
-        return false;
+        return null;
     }
 
-    public static boolean showCommentsForSelectedMovie(String id){
+    public static MongoCursor<Document> showCommentsForSelectedMovie(String id){
         try{
         BasicDBObject b = new BasicDBObject("movie_id",new ObjectId(id));
         mongoClient = new MongoClient(new MongoClientURI("mongodb://localhost:27017"));
@@ -104,149 +78,71 @@ public class mainClass {
         FindIterable<Document> cursor = collection.find(b);
         MongoCursor<Document> iterator = cursor.iterator();
         if(iterator.hasNext()){
-            while(iterator.hasNext()){
-
-                System.out.println(iterator.next());
-            }
-
+            return iterator;
         }else{
-
-            System.out.println("0 reviews");
+            JOptionPane.showMessageDialog(null,"0 reviews");
         }
         }catch(Exception e){
             e.printStackTrace();
 
         }
 
-        return false;
+        return null;
     }
-    public static boolean sortONYear(FindIterable<Document> cursor){
+    public static MongoCursor<Document> sortONYear(FindIterable<Document> cursor){
         try {
             BasicDBObject basicDBObject = new BasicDBObject("year", -1);
             FindIterable<Document> cursr = cursor.sort(basicDBObject);
             MongoCursor<Document> iterator = cursr.iterator();
 
             if (iterator.hasNext()) {
-                while (iterator.hasNext()) {
-                    System.out.println(iterator.next().getInteger("year"));
 
-                }
-                return true;
+                return iterator;
 
             }
         }catch (Exception e){
             e.printStackTrace();
         }
-        return false;
+        return null;
     }
 
-    public static boolean sortByRuntime(FindIterable<Document> cursor){
+
+    public static MongoCursor<Document> sortByRuntime(FindIterable<Document> cursor){
         try {
             BasicDBObject basicDBObject = new BasicDBObject("runtime", 1);
             FindIterable<Document> cursr = cursor.sort(basicDBObject);
             MongoCursor<Document> iterator = cursr.iterator();
 
             if (iterator.hasNext()) {
-                while (iterator.hasNext()) {
-                    iterator.next().getInteger("runtime");
 
-
-                    System.out.println(iterator.next().getInteger("runtime"));
-
-
-                }
-                return true;
+                return iterator;
 
             }
         }catch (Exception e){
             e.printStackTrace();
         }
-        return false;
+        return null;
+    }
+
+    public static MongoCursor<Document> sortByrating(FindIterable<Document> cursor,BasicDBObject bdo){
+
+        try{
+            Document b = new Document("genres", "Short");
+            FindIterable<Document> cursor2 = cursor.sort(bdo);
+            MongoCursor<Document> iterator = cursor2.iterator();
+
+            if(iterator.hasNext()) {
+                return iterator;
+
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+        return null;
     }
     public static void main (String[] arg)  {
-        searchByGenre("Short");
-       // searchByActorName("John Ott");
+        new Window().setVisible(true);
 
-
-
-       /* try {
-            int count = 0;
-            mongoClient = new MongoClient(new MongoClientURI("mongodb://localhost:27017"));
-            BasicDBObject basicDBObject = null;
-            MongoCollection<Document> collection = null;
-          //  MongoCollection<Document> collection = mongoClient.getDatabase("movie").getCollection("movies");
-            MongoCollection<Document> CommentCollection = mongoClient.getDatabase("movie").getCollection("comments");
-         //   System.out.println(collection.countDocuments());
-            FindIterable<Document> cursor = null;
-            FindIterable<Document> CommentsCursor;
-            MongoCursor<Document> iterator = null;
-            MongoCursor<Document> iterator2;
-           //MongoCursor<Document> Cursor = collection.find(new BasicDBObject("title", "Blacksmith Scene")).cursor();
-           System.out.println("please select the option\n1.movie title\2.actor name\3.director name\ngenre");
-           //args = in.next();
-            args = "John Ott";
-            Document doc = new Document("cast", args);
-         /*  cursor = collection.find(new Document("title", "Blacksmith Scene"));
-           String id = String.valueOf(cursor.iterator().next().get("_id"));
-           CommentsCursor = CommentCollection.find(new Document("movie_id", id));*/
-
-           /* cursor = collection.find(doc);
-            System.out.println(cursor.iterator().next());
-           //System.out.println(CommentsCursor.iterator().next());
-           /* cursor = collection.find(new Document("cast", "John Ott"));
-            System.out.println(cursor.iterator().next());
-            cursor = collection.find(new Document("directors", "William K.L. Dickson"));
-            System.out.println(cursor.iterator().next());
-            cursor = collection.find(new Document("genres", "Short"));
-            System.out.println(cursor.iterator().next());*/
-            //cursor = collection.find(new BasicDBObject("title",args));
-        /*  switch(args){
-                case "1":
-                   collection = mongoClient.getDatabase("movie").getCollection("movies");
-
-                    System.out.println("please enter movie name");
-                    args = in.next();
-                    cursor = collection.find(new Document("cast", args));
-
-                    break;
-                case "2":
-                    System.out.println("please enter actor name");
-                    args = in.next();
-                    cursor = collection.find(new Document("directors", "William K.L. Dickson"));
-                    break;
-                case "3":
-                    System.out.println("please enter director name");
-                    args = in.next();
-                    cursor = collection.find(new Document("genres", "Short"));
-                    break;
-                case "4":
-                    System.out.println("please enter genre name");
-                    args = in.next();
-                    cursor = collection.find(new BasicDBObject("title",args));
-                    break;
-                default:
-                    System.out.println("please select a correct name");
-                    break;
-
-            }
-           iterator = cursor.iterator();
-
-            while(iterator.hasNext()) {
-                System.out.println(iterator);
-
-
-            }
-
-            */
-
-
-
-
-
-
-/*
-        }catch (Exception e){
-            e.printStackTrace();
-        }*/
     }
 }
